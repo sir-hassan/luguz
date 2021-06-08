@@ -1,0 +1,19 @@
+package captcha
+
+type Generator interface {
+	Generate() ([]byte, error)
+}
+
+type staticGenerator struct {
+	data []byte
+}
+
+var _ Generator = &staticGenerator{}
+
+func NewStaticGenerator() *staticGenerator {
+	data := []byte("iVBORw0KGgoAAAANSUhEUgAAAfQAAABkCAIAAAD/pVUqAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9\nkT1Iw1AUhU9TtUUqDnYQ6RCwOlkQFXHUKhShQqgVWnUweekfNGlIWlwcBdeCgz+LVQcXZ10dXAVB\n8AfEzc1J0UVKvC8ptIjxweV9nPfO4b77AKFRZprVNQ5oetVMJeJiJrsqBl7RgyBVBMMys4w5SUrC\nc33dw8f3uxjP8r735+pTcxYDfCLxLDPMKvEG8fRm1eC8TxxmRVklPiceM6lB4keuKy6/cS44LPDM\nsJlOzROHicVCBysdzIqmRjxFHFU1nfKFjMsq5y3OWrnGWn3yF4Zy+soy16kiSGARS5AgQkENJZRR\nRYx2nRQLKTqPe/iHHL9ELoVcJTByLKACDbLjB/+D37O18pMTblIoDnS/2PbHCBDYBZp12/4+tu3m\nCeB/Bq70tr/SAGY+Sa+3tegR0L8NXFy3NWUPuNwBBp8M2ZQdyU8l5PPA+xl9UxYYuAV619y5tc5x\n+gCkaVbJG+DgEBgtUPa6x7uDnXP7905rfj873XKR5uRz8gAAAAlwSFlzAAAuIwAALiMBeKU/dgAA\nAAd0SU1FB+UGCAYdI5kvnAIAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAB\nOElEQVR42u3WQREAIAwDQYoB/KstEph+w66EPG5Si1xtgrk6ZiPBNgGAuAMg7gCIOwDiDoC4A4g7\nAOIOgLgDIO4AiDuAuAMg7gCIOwDiDoC4AyDuAOIOgLgDIO4AiDsA4g4g7gCIOwDiDoC4AyDuAIg7\ngLgDIO4AiDsA4g6AuAOIOwDiDoC4AyDuAIg7AOIOIO4AiDsA4g6AuAMg7gBfKxMEaxOA5w6AuAMg\n7gCIOwDiDoC4A4g7AOIOgLgDIO4AiDuAuAMg7gCIOwDiDoC4AyDuAOIOgLgDIO4AiDsA4g4g7gCI\nOwDiDoC4AyDuAIg7gLgDIO4AiDsA4g6AuAOIOwDiDoC4AyDuAIg7AOIOIO4AiDsA4g6AuAMg7gDi\nDoC4AyDuAIg7AOIOgLgDiDsA4g6AuAMg7gC8XGzTA9Q3kQ6ZAAAAAElFTkSuQmCC")
+	return &staticGenerator{data: data}
+}
+func (s *staticGenerator) Generate() ([]byte, error) {
+	return s.data, nil
+}
