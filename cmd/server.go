@@ -74,12 +74,15 @@ func createNotFoundHandleFunc(logger log.Logger) func(w http.ResponseWriter, r *
 func createCaptchaHandleFunc(logger log.Logger, generator captcha.Generator) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
-		data, err := generator.Generate()
+		cpt, err := generator.Generate()
 		if err != nil {
 			level.Error(logger).Log("msg", "generating captcha", "error", err)
 		}
-		if _, err = w.Write(data); err != nil {
+		if _, err = w.Write(cpt.Bytes()); err != nil {
 			level.Error(logger).Log("msg", "writing connection", "error", err)
+		}
+		if err = generator.Release(cpt); err != nil {
+			level.Error(logger).Log("msg", "releasing captcha", "error", err)
 		}
 	}
 }
