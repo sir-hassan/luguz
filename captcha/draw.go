@@ -11,14 +11,12 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func drawCircles(img draw.Image, width int, height int) {
-	for i := 0; i < 10; i++ {
-
+func drawCaptcha(img draw.Image, width int, height int, circlesNum int) (solX, solY, solW int) {
+	for i := 0; i < circlesNum; i++ {
 		minDimension := height
 		if height > width {
 			minDimension = width
 		}
-
 		maxRadius := (minDimension)/2 - 1
 		minRadius := minDimension / 20
 
@@ -26,7 +24,14 @@ func drawCircles(img draw.Image, width int, height int) {
 		x := randBetween(r, width-r-1)
 		y := randBetween(r, height-r-1)
 		drawCircle(img, x, y, r, color.Gray{Y: uint8(255)}, i == 0)
+		if i == 0 {
+			solX = x - r
+			solY = y - r
+			solW = 2 * r
+			drawSquare(img, x-r, y-r, 2*r, color.Gray{Y: uint8(255)})
+		}
 	}
+	return solX, solY, solW
 }
 
 func drawCircle(img draw.Image, x0, y0, r int, c color.Color, open bool) {
@@ -85,6 +90,17 @@ func drawCircle(img draw.Image, x0, y0, r int, c color.Color, open bool) {
 			y--
 			ysq = y1sq
 		}
+	}
+}
+func drawSquare(img draw.Image, x, y, w int, c color.Color) {
+
+	for i := x; i <= x+w; i++ {
+		img.Set(i, y, c)
+		img.Set(i, y+w, c)
+	}
+	for i := y; i <= y+w; i++ {
+		img.Set(x, i, c)
+		img.Set(x+w, i, c)
 	}
 }
 
