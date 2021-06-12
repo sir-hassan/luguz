@@ -26,7 +26,7 @@ func main() {
 	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stdout))
 	level.Info(logger).Log("msg", "starting luguz...")
 
-	handler := createHandler(logger, captcha.NewStaticGenerator())
+	handler := createHandler(logger, captcha.NewCachedGenerator())
 
 	http.Handle("/", handler)
 	level.Info(logger).Log("msg", "listening started", "port", apiPort)

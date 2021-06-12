@@ -2,9 +2,9 @@ package captcha
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"image"
+	"sync"
 )
 
 type Solution struct {
@@ -19,6 +19,8 @@ type Captcha struct {
 	Data     []byte   `json:"data"`
 
 	renderedData []byte
+
+	b1, b2 *bytes.Buffer
 }
 
 func (c *Captcha) Bytes() []byte {
@@ -31,15 +33,22 @@ type Generator interface {
 }
 
 type staticGenerator struct {
+	pool *sync.Pool
 }
 
 var _ Generator = &staticGenerator{}
 
 func NewStaticGenerator() *staticGenerator {
-	return &staticGenerator{}
+	return &staticGenerator{
+		pool: &sync.Pool{
+			New: func() interface{} { return bytes.NewBuffer(make([]byte, 0, 20*1024)) },
+		},
+	}
 }
 
 func (s *staticGenerator) Release(c *Captcha) error {
+	s.pool.Put(c.b1)
+	s.pool.Put(c.b2)
 	return nil
 }
 
@@ -50,7 +59,8 @@ func (s *staticGenerator) Generate() (*Captcha, error) {
 
 	solX, solY, solW := drawCaptcha(img, width, height, circlesCount)
 
-	buf := bytes.NewBuffer(make([]byte, 0, 4*1024))
+	buf := s.pool.Get().(*bytes.Buffer)
+	buf.Reset()
 
 	enc := NewPngEncoder()
 
@@ -58,16 +68,20 @@ func (s *staticGenerator) Generate() (*Captcha, error) {
 		return nil, err
 	}
 
-	buf2 := make([]byte, base64.StdEncoding.EncodedLen(buf.Len()))
-	base64.StdEncoding.Encode(buf2, buf.Bytes())
+	cpt := &Captcha{Data: buf.Bytes(), Solution: Solution{X: solX, Y: solY, W: solW, H: solW}}
 
-	cpt := &Captcha{Data: buf2, Solution: Solution{X: solX, Y: solY, W: solW, H: solW}}
+	buf2 := s.pool.Get().(*bytes.Buffer)
+	buf2.Reset()
 
-	data, err := json.Marshal(&cpt)
-	if err != nil {
+	cpt.b1 = buf
+	cpt.b2 = buf2
+
+	jsonEnc := json.NewEncoder(buf2)
+
+	if err := jsonEnc.Encode(&cpt); err != nil {
 		return nil, err
 	}
-	cpt.renderedData = data
+	cpt.renderedData = buf2.Bytes()
 
 	return cpt, nil
 }
