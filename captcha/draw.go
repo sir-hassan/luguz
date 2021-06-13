@@ -11,6 +11,7 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
+// draw a bunch of random circles one of them should be opened.
 func drawCaptcha(img draw.Image, width int, height int, circlesNum int) (solX, solY, solW int) {
 	for i := 0; i < circlesNum; i++ {
 		minDimension := height
@@ -20,15 +21,16 @@ func drawCaptcha(img draw.Image, width int, height int, circlesNum int) (solX, s
 		maxRadius := (minDimension)/2 - 1
 		minRadius := minDimension / 20
 
-		r := randBetween(minRadius, maxRadius)
-		x := randBetween(r, width-r-1)
-		y := randBetween(r, height-r-1)
+		r := randInMinMax(minRadius, maxRadius)
+		x := randInMinMax(r, width-r-1)
+		y := randInMinMax(r, height-r-1)
 		drawCircle(img, x, y, r, color.Gray{Y: uint8(255)}, i == 0)
 		if i == 0 {
 			solX = x - r
 			solY = y - r
 			solW = 2 * r
-			drawSquare(img, x-r, y-r, 2*r, color.Gray{Y: uint8(255)})
+			// draw square around the opened circle just for visual debug.
+			//drawSquare(img, x-r, y-r, 2*r, color.Gray{Y: uint8(255)})
 		}
 	}
 	return solX, solY, solW
@@ -92,8 +94,9 @@ func drawCircle(img draw.Image, x0, y0, r int, c color.Color, open bool) {
 		}
 	}
 }
-func drawSquare(img draw.Image, x, y, w int, c color.Color) {
 
+// drawSquare is used to debug the opened circle.
+func drawSquare(img draw.Image, x, y, w int, c color.Color) {
 	for i := x; i <= x+w; i++ {
 		img.Set(i, y, c)
 		img.Set(i, y+w, c)
@@ -104,6 +107,6 @@ func drawSquare(img draw.Image, x, y, w int, c color.Color) {
 	}
 }
 
-func randBetween(min int, max int) int {
+func randInMinMax(min int, max int) int {
 	return rand.Intn(max-min+1) + min
 }

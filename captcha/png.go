@@ -18,6 +18,7 @@ func (p *buffersPool) Put(buffer *png.EncoderBuffer) {
 
 var _ png.EncoderBufferPool = &buffersPool{}
 
+// NewPngEncoder func creates a new configured png encoder.
 func NewPngEncoder() *png.Encoder {
 	return &png.Encoder{
 		CompressionLevel: png.DefaultCompression,

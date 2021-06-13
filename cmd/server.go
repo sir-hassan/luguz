@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"flag"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"
@@ -23,10 +24,38 @@ type ErrorReply struct {
 }
 
 func main() {
+
+	// Setup cli options.
+	var heightOption = flag.Int("height", 200, "The height of the rendered captcha image.")
+	var widthOption = flag.Int("width", 500, "The width of the rendered captcha image.")
+	var circlesOption = flag.Int("circles", 10, "The number of the circles in the rendered captcha image.")
+	var cachedOption = flag.Int("cache", 0, "The number of the pre-rendered captcha images to cache in memory. (default no cache)")
+	flag.Parse()
+
 	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stdout))
 	level.Info(logger).Log("msg", "starting luguz...")
 
-	handler := createHandler(logger, captcha.NewCachedGenerator())
+	level.Info(logger).Log("msg", "generator image size", "config", *widthOption, "height", *heightOption, "circles", *circlesOption)
+	captchaCfg := captcha.GeneratorConfig{
+		Width:   *widthOption,
+		Height:  *heightOption,
+		Circles: *circlesOption,
+	}
+	var generator captcha.Generator
+
+	// cached mode less that 100 doesn't make sense.
+	if *cachedOption > 0 && *cachedOption < 100 {
+		level.Warn(logger).Log("msg", "minimum cache value is 100")
+	}
+	if *cachedOption < 100 {
+		level.Info(logger).Log("msg", "cached-mode is disabled")
+		generator = captcha.NewBasicGenerator(captchaCfg)
+	} else {
+		level.Info(logger).Log("msg", "cached-mode is enabled", "size", *cachedOption)
+		generator = captcha.NewCachedGenerator(captchaCfg, *cachedOption)
+	}
+
+	handler := createHandler(logger, generator)
 
 	http.Handle("/", handler)
 	level.Info(logger).Log("msg", "listening started", "port", apiPort)

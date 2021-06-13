@@ -1,14 +1,16 @@
 package captcha
 
-import (
-	"testing"
-)
+import "testing"
 
-func Benchmark(b *testing.B) {
-	generator := NewStaticGenerator()
+func BenchmarkCaptchaGenerator(b *testing.B) {
+	cfg := GeneratorConfig{
+		Width:   100,
+		Height:  100,
+		Circles: 10,
+	}
+	generator := NewBasicGenerator(cfg)
+
 	for i := 0; i < b.N; i++ {
-		if _, err := generator.Generate(); err != nil {
-			b.Errorf("error in generating")
-		}
+		generator.Generate()
 	}
 }
