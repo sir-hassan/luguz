@@ -14,7 +14,7 @@ curl http://host:port/captcha
 {"solution":{"X":350,"Y":50,"W":142,"H":142},"data":"BASE_ENCODED_PNG_IMAGE"}
 ````
 
-# Make luguz
+## Make luguz
 
 ```shell
 # to run tests:
@@ -23,7 +23,7 @@ make test
 make build
 ```
 
-# Cli flags
+## Cli flags
 
 ```
   -cache int
@@ -36,7 +36,7 @@ make build
         The width of the rendered captcha image. (default 500)
 ```
 
-# Cached pre-rendering mode
+## Cached pre-rendering mode
 
 In this mode, luguz will build in-memory cached list of pre-rendered captchas and serve the requests from it.
 At the same time, a process is running in background and preparing new cashes, replacing the main cache when it depletes. 
@@ -44,7 +44,7 @@ If the incoming requests are faster than the cache regenerating process, lugus w
 
 Cached mode is enabled by passing option ``-cache=1000`` for a size 1000 cache.
 
-# Testing hacks
+## Testing hacks
 
 I use this following bash line to test the ouput real quick:
 
